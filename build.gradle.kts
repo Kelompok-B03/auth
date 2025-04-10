@@ -34,7 +34,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.postgresql:postgresql:42.7.2") // Check for latest version
+    implementation("org.postgresql:postgresql:42.7.2")
+    implementation("io.github.cdimascio:dotenv-java:3.0.0")
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
