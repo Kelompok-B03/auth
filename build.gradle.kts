@@ -87,13 +87,6 @@ tasks.jacocoTestReport {
     }
 }
 
-tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
-    archiveFileName.set("gatherlove_auth.jar")
-    layered {
-        enabled.set(true)
-    }
-}
-
 tasks.register<Test>("functionalTest") {
     group = "verification"
     description = "Runs functional tests"
@@ -112,11 +105,4 @@ sonar {
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml")
     }
-}
-
-tasks.named<com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask>("dependencyUpdates") {
-    checkForGradleUpdate = true
-    outputFormatter = "plain"
-    outputDir = "build/dependencyUpdates"
-    reportfileName = "report"
 }
