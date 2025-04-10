@@ -65,6 +65,7 @@ dependencies {
     testImplementation("io.github.bonigarcia:webdrivermanager:${versions["webdrivermanager"]}")
     testImplementation("org.seleniumhq.selenium:selenium-java:${versions["seleniumJava"]}")
     testImplementation("io.github.bonigarcia:selenium-jupiter:${versions["seleniumJupiter"]}")
+    testImplementation("com.h2database:h2:2.2.224")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -105,4 +106,8 @@ sonar {
         property("sonar.java.coveragePlugin", "jacoco")
         property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml")
     }
+}
+
+tasks.test {
+    systemProperty("spring.profiles.active", "test")
 }

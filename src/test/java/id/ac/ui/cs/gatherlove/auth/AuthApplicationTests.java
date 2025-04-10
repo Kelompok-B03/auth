@@ -9,13 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 class AuthApplicationTests {
 
-    static {
-        Dotenv dotenv = Dotenv.configure().load();
-        dotenv.entries().forEach(entry ->
-                System.setProperty(entry.getKey(), entry.getValue())
-        );
-    }
-
     @Test
     void contextLoads() {
     }
