@@ -1,0 +1,1 @@
+web: java -jar gatherlove_auth.jar
