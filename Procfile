@@ -1,1 +1,1 @@
-web: java -jar gatherlove_auth.jar
+web: java -jar build/libs/app.jar
