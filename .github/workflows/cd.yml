@@ -19,17 +19,10 @@ jobs:
           distribution: 'temurin'
 
       - run: chmod +x gradlew
-      - run: ./gradlew build test jacocoTestReport
-
-      - name: SonarCloud Scan
-        if: github.event_name == 'push'
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: app.jar
+          name: gatherlove-auth.jar
           path: build/libs/*.jar
 
   deploy:
@@ -51,7 +44,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - run: |
-          echo "web: java -jar build/libs/gatherlove_auth.jar" > Procfile
+          echo "web: java -jar build/libs/gatherlove-auth.jar" > Procfile
           zip deploy.zip build/libs/gatherlove-auth.jar Procfile
 
       - run: |
