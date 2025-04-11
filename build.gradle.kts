@@ -7,6 +7,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.51.0"
 }
 
+
 group = "id.ac.ui.cs.gatherlove"
 version = "0.0.1-SNAPSHOT"
 
@@ -110,4 +111,8 @@ sonar {
 
 tasks.test {
     systemProperty("spring.profiles.active", "test")
+}
+
+springBoot {
+    mainClass.set("id.ac.ui.cs.gatherlove.auth.AuthApplication")
 }

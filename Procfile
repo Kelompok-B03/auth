@@ -1,1 +1,1 @@
-web: java -jar build/libs/gatherlove-auth.jar --spring.profiles.active=staging
+web: java -jar build/libs/auth-0.0.1-SNAPSHOT.jar --spring.profiles.active=staging
