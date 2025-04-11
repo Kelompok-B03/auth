@@ -116,3 +116,13 @@ tasks.test {
 springBoot {
     mainClass.set("id.ac.ui.cs.gatherlove.auth.AuthApplication")
 }
+
+tasks {
+    bootJar {
+        archiveFileName.set("gatherlove-auth.jar")
+    }
+    jar {
+        enabled = false
+    }
+}
+
