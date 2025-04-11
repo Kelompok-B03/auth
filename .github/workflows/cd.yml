@@ -60,4 +60,5 @@ jobs:
             --source-bundle "S3Bucket=${{ secrets.AWS_S3_BUCKET }},S3Key=$VERSION.zip"
           aws elasticbeanstalk update-environment \
             --environment-name "${{ secrets.EB_STAGING_ENV }}" \
-            --version-label "$VERSION"
+            --version-label "$VERSION" \
+            --option-settings Namespace=aws:elasticbeanstalk:command,OptionName=DeploymentPolicy,Value=AllAtOnce
