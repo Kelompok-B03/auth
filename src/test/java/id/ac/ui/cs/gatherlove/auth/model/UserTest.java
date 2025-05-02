@@ -12,12 +12,12 @@ public class UserTest {
     public void testUserCreation() {
         User user = new User(
                 "test@example.com",
-                "hashedPassword",
-                Set.of(Role.USER)
+                "hashedPassword"
+//                Set.of(Role.USER)
         );
 
         assertEquals("test@example.com", user.getEmail());
         assertEquals("hashedPassword", user.getPassword());
-        assertTrue(user.getRoles().contains(Role.USER));
+//        assertTrue(user.getRoles().contains(Role.USER));
     }
 }

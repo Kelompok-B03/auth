@@ -4,5 +4,5 @@ public enum Role {
     ADMIN,
     FUNDRAISER,
     DONOR,
-    USER // Base role
+    USER
 }

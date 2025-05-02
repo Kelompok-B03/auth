@@ -13,7 +13,7 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // Changed from user_id to id
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -26,6 +26,7 @@ public class User {
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
+    @Column(name = "role")
     private Set<Role> roles = new HashSet<>();
 
     public User(){

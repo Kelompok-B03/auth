@@ -1,15 +1,20 @@
 package id.ac.ui.cs.gatherlove.auth;
 
+import id.ac.ui.cs.gatherlove.auth.model.User;
+import id.ac.ui.cs.gatherlove.auth.repository.UserRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import io.github.cdimascio.dotenv.Dotenv;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
 @SpringBootApplication
+@EntityScan(basePackages = "id.ac.ui.cs.gatherlove.auth.model")
 public class AuthApplication {
     @Autowired
     private DataSource dataSource;
