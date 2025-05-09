@@ -1,19 +1,25 @@
 package id.ac.ui.cs.gatherlove.auth.model;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
 public class User {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  // Changed from user_id to id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -21,19 +27,40 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"))
-    @Enumerated(EnumType.STRING)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    public User(){
+    private LocalDateTime createdAt;
+
+    private boolean isActive = true;
+
+    private String walletId;
+
+    private LocalDateTime updatedAt;
+
+    private String name;
+
+    private String phoneNumber;
+
+    @Nullable
+    @Column(nullable = true)
+    private String profilePictureUrl;
+
+    @Nullable
+    @Column(nullable = true)
+    private String bio;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
     }
 
-    public User(String email, String password, Set<Role> roles) {
-        this.setEmail(email);
-        this.setPassword(password);
-        this.setRoles(roles);
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
