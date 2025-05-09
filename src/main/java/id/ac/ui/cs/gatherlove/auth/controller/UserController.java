@@ -19,10 +19,15 @@ public class UserController {
     @GetMapping("/{email}")
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
         try {
-            User user = userService.findByEmailOrThrow(email);
+            User user = userService.loadUserByEmail(email);
             return ResponseEntity.ok(user);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
+    }
+
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping() {
+        return ResponseEntity.ok("Pong");
     }
 }

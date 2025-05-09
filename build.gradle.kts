@@ -44,6 +44,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+
 
     // Database
     implementation("org.postgresql:postgresql:${versions["postgresql"]}")
@@ -65,6 +67,7 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("io.github.bonigarcia:webdrivermanager:${versions["webdrivermanager"]}")
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.seleniumhq.selenium:selenium-java:${versions["seleniumJava"]}")
     testImplementation("io.github.bonigarcia:selenium-jupiter:${versions["seleniumJupiter"]}")
     testImplementation("com.h2database:h2:2.2.224")

@@ -1,8 +1,6 @@
 package id.ac.ui.cs.gatherlove.auth;
 
 import id.ac.ui.cs.gatherlove.auth.config.AppJwtProperties;
-import id.ac.ui.cs.gatherlove.auth.model.User;
-import id.ac.ui.cs.gatherlove.auth.repository.UserRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import io.github.cdimascio.dotenv.Dotenv;
