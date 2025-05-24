@@ -1,11 +1,14 @@
 package id.ac.ui.cs.gatherlove.auth.controller;
 
-import id.ac.ui.cs.gatherlove.auth.dto.UserResponse;
+import id.ac.ui.cs.gatherlove.auth.dto.request.UpdateUserProfileRequest;
+import id.ac.ui.cs.gatherlove.auth.dto.response.UserResponse;
 import id.ac.ui.cs.gatherlove.auth.model.User;
 import id.ac.ui.cs.gatherlove.auth.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -95,5 +98,26 @@ public class UserController {
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
         return ResponseEntity.ok("Pong");
+    }
+
+    @PutMapping("/profile/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> updateUserProfile(
+            @Valid @RequestBody UpdateUserProfileRequest request,
+            Authentication authentication) {
+        try {
+            String authenticatedUserEmail = authentication.getName();
+            User user = userService.loadUserByEmail(authenticatedUserEmail);
+            UUID userId = user.getId();
+            User updatedUser = userService.updateUserProfile(userId, request, authenticatedUserEmail);
+            return ResponseEntity.ok(UserResponse.fromUser(updatedUser));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage(), "status", "error"));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", e.getMessage(), "status", "error"));
+        } catch (Exception e) {
+            System.err.println("Error updating profile for user");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "An unexpected error occurred.", "status", "error"));
+        }
     }
 }

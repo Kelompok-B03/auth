@@ -1,8 +1,8 @@
 package id.ac.ui.cs.gatherlove.auth.service;
 
-import id.ac.ui.cs.gatherlove.auth.dto.JwtResponse;
-import id.ac.ui.cs.gatherlove.auth.dto.LoginRequest;
-import id.ac.ui.cs.gatherlove.auth.dto.RegisterRequest;
+import id.ac.ui.cs.gatherlove.auth.dto.response.JwtResponse;
+import id.ac.ui.cs.gatherlove.auth.dto.request.LoginRequest;
+import id.ac.ui.cs.gatherlove.auth.dto.request.RegisterRequest;
 import id.ac.ui.cs.gatherlove.auth.model.Role;
 import id.ac.ui.cs.gatherlove.auth.model.User;
 import id.ac.ui.cs.gatherlove.auth.repository.RoleRepository;

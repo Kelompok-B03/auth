@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import id.ac.ui.cs.gatherlove.auth.dto.request.UpdateUserProfileRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -85,5 +86,39 @@ public class UserService implements UserDetailsService {
         }
         user.setActive(true);
         return userRepository.save(user);
+    }
+
+    /**
+     * Memperbarui profil pengguna.
+     * @param userId ID pengguna yang akan diperbarui.
+     * @param request DTO yang berisi data pembaruan.
+     * @param authenticatedUserEmail Email pengguna yang terautentikasi (untuk verifikasi kepemilikan).
+     * @return Pengguna yang telah diperbarui.
+     * @throws UsernameNotFoundException jika pengguna tidak ditemukan.
+     * @throws SecurityException jika pengguna mencoba memperbarui profil orang lain (kecuali admin).
+     */
+    @Transactional
+    public User updateUserProfile(UUID userId, UpdateUserProfileRequest request, String authenticatedUserEmail)
+            throws UsernameNotFoundException, SecurityException {
+        User userToUpdate = loadUserById(userId);
+
+        if (!userToUpdate.getEmail().equals(authenticatedUserEmail)) {
+            throw new SecurityException("User is not authorized to update this profile.");
+        }
+
+        if (request.getName() != null) {
+            userToUpdate.setName(request.getName());
+        }
+        if (request.getPhoneNumber() != null) {
+            userToUpdate.setPhoneNumber(request.getPhoneNumber());
+        }
+        if (request.getBio() != null) {
+            userToUpdate.setBio(request.getBio());
+        }
+        if (request.getProfilePictureUrl() != null) {
+            userToUpdate.setProfilePictureUrl(request.getProfilePictureUrl());
+        }
+
+        return userRepository.save(userToUpdate);
     }
 }
