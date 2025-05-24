@@ -1,6 +1,6 @@
 package id.ac.ui.cs.gatherlove.auth.controller;
 
-import id.ac.ui.cs.gatherlove.auth.model.Role;
+import id.ac.ui.cs.gatherlove.auth.dto.UserResponse;
 import id.ac.ui.cs.gatherlove.auth.model.User;
 import id.ac.ui.cs.gatherlove.auth.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -28,31 +28,33 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<List<Map<String, Object>>> getAllUsers() {
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        List<Map<String, Object>> safeUsers = users.stream().map(this::mapUserToSafeResponse).collect(Collectors.toList());
-        return ResponseEntity.ok(safeUsers);
+        List<UserResponse> userResponses = users.stream()
+                .map(UserResponse::fromUser)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userResponses);
     }
 
     @GetMapping("/{userId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or @userService.loadUserById(#userId).email == authentication.name")
-    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable UUID userId) {
+    public ResponseEntity<?> getUserById(@PathVariable UUID userId) {
         try {
             User user = userService.loadUserById(userId);
-            return ResponseEntity.ok(mapUserToSafeResponse(user));
+            return ResponseEntity.ok(UserResponse.fromUser(user));
         } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage(), "status", "error"));
         }
     }
 
     @GetMapping("/email/{email}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or #email == authentication.name")
-    public ResponseEntity<Map<String, Object>> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
         try {
             User user = userService.loadUserByEmail(email);
-            return ResponseEntity.ok(mapUserToSafeResponse(user));
+            return ResponseEntity.ok(UserResponse.fromUser(user));
         } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage(), "status", "error"));
         }
     }
 
@@ -93,21 +95,5 @@ public class UserController {
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
         return ResponseEntity.ok("Pong");
-    }
-
-    private Map<String, Object> mapUserToSafeResponse(User user) {
-        Map<String, Object> response = new java.util.HashMap<>();
-        response.put("id", user.getId().toString());
-        response.put("email", user.getEmail());
-        response.put("name", user.getName());
-        response.put("phoneNumber", user.getPhoneNumber());
-        response.put("bio", user.getBio());
-        response.put("profilePictureUrl", user.getProfilePictureUrl());
-        response.put("walletId", user.getWalletId());
-        response.put("isActive", user.isActive());
-        response.put("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
-        response.put("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : null);
-        response.put("updatedAt", user.getUpdatedAt() != null ? user.getUpdatedAt().toString() : null);
-        return response;
     }
 }
