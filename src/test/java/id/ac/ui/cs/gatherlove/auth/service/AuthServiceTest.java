@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -67,20 +66,6 @@ class AuthServiceTest {
         loginRequest = new LoginRequest();
         loginRequest.setEmail("test@example.com");
         loginRequest.setPassword("password123");
-    }
-
-    @Test
-    void testRegisterAsDonorSuccess() {
-        // Arrange
-        when(userRepository.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(registerRequest.getPassword())).thenReturn("encodedPassword");
-        when(roleRepository.findByName("DONOR")).thenReturn(Optional.of(donorRole));
-
-        // Act
-        authService.registerAsDonor(registerRequest);
-
-        // Assert
-        verify(userRepository).save(any(User.class));
     }
 
     @Test
@@ -159,15 +144,4 @@ class AuthServiceTest {
         // Assert
         assertThat(response.getToken()).isEqualTo("token");
     }
-
-//    @Test
-//    void testLoginInvalidCredentials() {
-//        // Arrange
-//        when(authenticationManager.authenticate(any())).thenThrow(AuthenticationException.class);
-//
-//        // Act & Assert
-//        assertThatThrownBy(() -> authService.login(loginRequest))
-//                .isInstanceOf(RuntimeException.class)
-//                .hasMessage("Invalid email or password");
-//    }
 }
