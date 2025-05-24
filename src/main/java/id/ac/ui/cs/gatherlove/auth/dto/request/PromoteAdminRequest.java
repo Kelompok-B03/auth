@@ -1,4 +1,4 @@
-package id.ac.ui.cs.gatherlove.auth.dto;
+package id.ac.ui.cs.gatherlove.auth.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

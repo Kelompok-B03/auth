@@ -1,4 +1,4 @@
-package id.ac.ui.cs.gatherlove.auth.dto;
+package id.ac.ui.cs.gatherlove.auth.dto.response;
 
 import id.ac.ui.cs.gatherlove.auth.model.Role;
 import id.ac.ui.cs.gatherlove.auth.model.User;

@@ -1,4 +1,4 @@
-package id.ac.ui.cs.gatherlove.auth.dto;
+package id.ac.ui.cs.gatherlove.auth.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
