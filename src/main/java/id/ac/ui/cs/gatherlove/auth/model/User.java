@@ -13,10 +13,8 @@ import java.util.UUID;
 @Setter
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "users")
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -37,7 +35,7 @@ public class User {
 
     private boolean isActive = true;
 
-    private String walletId;
+    private Long walletId;
 
     private LocalDateTime updatedAt;
 
@@ -53,6 +51,20 @@ public class User {
     @Column(nullable = true)
     private String bio;
 
+    private User(Builder builder) {
+        this.email = builder.email;
+        this.password = builder.password;
+        this.name = builder.name;
+        this.phoneNumber = builder.phoneNumber;
+        this.profilePictureUrl = builder.profilePictureUrl;
+        this.bio = builder.bio;
+        this.walletId = builder.walletId;
+        if (builder.roles != null) {
+            this.roles = builder.roles;
+        }
+        this.isActive = builder.isActive;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -62,5 +74,77 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public static Builder builder(String email, String password) {
+        return new Builder(email, password);
+    }
+
+    public static class Builder {
+        // Required parameters
+        private final String email;
+        private final String password;
+
+        // Optional parameters
+        private String name;
+        private String phoneNumber;
+        private String profilePictureUrl;
+        private String bio;
+        private Long walletId;
+        private Set<Role> roles = new HashSet<>();
+        private boolean isActive = true;
+
+        // Builder constructor for required fields
+        private Builder(String email, String password) {
+            if (email == null || email.trim().isEmpty()) {
+                throw new IllegalArgumentException("Email cannot be null or empty");
+            }
+            if (password == null || password.trim().isEmpty()) {
+                throw new IllegalArgumentException("Password cannot be null or empty");
+            }
+            this.email = email;
+            this.password = password;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder phoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+            return this;
+        }
+
+        public Builder profilePictureUrl(@Nullable String profilePictureUrl) {
+            this.profilePictureUrl = profilePictureUrl;
+            return this;
+        }
+
+        public Builder bio(@Nullable String bio) {
+            this.bio = bio;
+            return this;
+        }
+
+        public Builder walletId(Long walletId) {
+            this.walletId = walletId;
+            return this;
+        }
+
+        public Builder roles(Set<Role> roles) {
+            if (roles != null) {
+                this.roles = roles;
+            }
+            return this;
+        }
+
+        public Builder isActive(boolean isActive) {
+            this.isActive = isActive;
+            return this;
+        }
+
+        public User build() {
+            return new User(this);
+        }
     }
 }
