@@ -4,12 +4,14 @@ import id.ac.ui.cs.gatherlove.auth.model.Role;
 import id.ac.ui.cs.gatherlove.auth.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Component
+@Order(1)
 public class RoleInitializer implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
