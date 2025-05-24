@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -165,43 +166,48 @@ public class AuthService {
 
 
     public JwtResponse login(LoginRequest request) {
+        if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+        if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+
+        String email = request.getEmail().trim();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
+
+        if (!user.isActive()) {
+            throw new DisabledException("User account is blocked.");
+        }
+
         try {
-            if (request.getEmail() == null || request.getEmail().trim().isEmpty()) {
-                throw new IllegalArgumentException("Email is required");
-            }
-
-            if (request.getPassword() == null || request.getPassword().trim().isEmpty()) {
-                throw new IllegalArgumentException("Password is required");
-            }
-
-            // Clean email input
-            String email = request.getEmail().trim();
-
-            // First check if user exists
-            User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new BadCredentialsException("Invalid email or password"));
-
-            // Then attempt authentication
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, request.getPassword())
             );
 
-            // Create claims map
             Map<String, Object> claims = new HashMap<>();
             claims.put("email", user.getEmail());
-            claims.put("userId", user.getId());
+            claims.put("userId", user.getId().toString());
             claims.put("roles", user.getRoles().stream().map(Role::getName).toList());
 
-            // Generate JWT token
             String token = jwtService.generateJWT(claims);
 
             return new JwtResponse(token);
         } catch (BadCredentialsException e) {
             throw new RuntimeException("Invalid email or password", e);
+        } catch (DisabledException e) {
+            throw new RuntimeException("User account is blocked.", e);
         } catch (AuthenticationException e) {
-            throw new RuntimeException("Authentication failed", e);
+            if (e.getMessage() != null && e.getMessage().contains("User account is blocked")) {
+                throw new RuntimeException("User account is blocked.", e);
+            }
+            throw new RuntimeException("Authentication failed: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new RuntimeException("Login failed: " + e.getMessage(), e);
+            System.err.println("Unexpected error during login for user " + email + ": " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Login failed due to an unexpected error.", e);
         }
     }
 }
