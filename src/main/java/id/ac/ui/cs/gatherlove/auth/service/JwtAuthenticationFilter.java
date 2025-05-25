@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // Create authorities from roles
             Collection<GrantedAuthority> authorities = roles.stream()
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                    .map(role -> new SimpleGrantedAuthority(role))
                     .collect(Collectors.toList());
 
             // Create Authentication object

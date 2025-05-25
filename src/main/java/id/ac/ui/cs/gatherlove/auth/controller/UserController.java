@@ -1,10 +1,23 @@
 package id.ac.ui.cs.gatherlove.auth.controller;
 
+import id.ac.ui.cs.gatherlove.auth.dto.request.UpdateUserProfileRequest;
+import id.ac.ui.cs.gatherlove.auth.dto.response.UserResponse;
 import id.ac.ui.cs.gatherlove.auth.model.User;
 import id.ac.ui.cs.gatherlove.auth.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -16,18 +29,95 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+    @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        List<UserResponse> userResponses = users.stream()
+                .map(UserResponse::fromUser)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userResponses);
+    }
+
+    @GetMapping("/{userId}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or @userService.loadUserById(#userId).email == authentication.name")
+    public ResponseEntity<?> getUserById(@PathVariable UUID userId) {
         try {
-            User user = userService.loadUserByEmail(email);
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            User user = userService.loadUserById(userId);
+            return ResponseEntity.ok(UserResponse.fromUser(user));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage(), "status", "error"));
         }
     }
+
+    @GetMapping("/email/{email}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #email == authentication.name")
+    public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
+        try {
+            User user = userService.loadUserByEmail(email);
+            return ResponseEntity.ok(UserResponse.fromUser(user));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage(), "status", "error"));
+        }
+    }
+
+    @PutMapping("/{userId}/block")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> blockUser(@PathVariable UUID userId) {
+        try {
+            userService.blockUser(userId);
+            return ResponseEntity.ok(Map.of("message", "User " + userId + " blocked successfully."));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{userId}/unblock")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> unblockUser(@PathVariable UUID userId) {
+        try {
+            userService.unblockUser(userId);
+            return ResponseEntity.ok(Map.of("message", "User " + userId + " unblocked successfully."));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/count")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<Map<String, Long>> getTotalUsers() {
+        long totalUsers = userService.getTotalUsers();
+        return ResponseEntity.ok(Map.of("totalUsers", totalUsers));
+    }
+
 
     @GetMapping("/ping")
     public ResponseEntity<String> ping() {
         return ResponseEntity.ok("Pong");
+    }
+
+    @PutMapping("/profile/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> updateUserProfile(
+            @Valid @RequestBody UpdateUserProfileRequest request,
+            Authentication authentication) {
+        try {
+            String authenticatedUserEmail = authentication.getName();
+            User user = userService.loadUserByEmail(authenticatedUserEmail);
+            UUID userId = user.getId();
+            User updatedUser = userService.updateUserProfile(userId, request, authenticatedUserEmail);
+            return ResponseEntity.ok(UserResponse.fromUser(updatedUser));
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage(), "status", "error"));
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", e.getMessage(), "status", "error"));
+        } catch (Exception e) {
+            System.err.println("Error updating profile for user");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "An unexpected error occurred.", "status", "error"));
+        }
     }
 }

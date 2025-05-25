@@ -1,12 +1,14 @@
 package id.ac.ui.cs.gatherlove.auth.controller;
 
-import id.ac.ui.cs.gatherlove.auth.dto.JwtResponse;
-import id.ac.ui.cs.gatherlove.auth.dto.LoginRequest;
-import id.ac.ui.cs.gatherlove.auth.dto.RegisterRequest;
+import id.ac.ui.cs.gatherlove.auth.dto.response.JwtResponse;
+import id.ac.ui.cs.gatherlove.auth.dto.request.LoginRequest;
+import id.ac.ui.cs.gatherlove.auth.dto.request.PromoteAdminRequest;
+import id.ac.ui.cs.gatherlove.auth.dto.request.RegisterRequest;
 import id.ac.ui.cs.gatherlove.auth.model.User;
 import id.ac.ui.cs.gatherlove.auth.service.AuthService;
 import id.ac.ui.cs.gatherlove.auth.service.JwtService;
 import id.ac.ui.cs.gatherlove.auth.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -125,6 +127,46 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                     "message", "User not found",
+                    "status", "error"
+            ));
+        }
+    }
+
+    /**
+     * Endpoint untuk mempromosikan pengguna menjadi ADMIN.
+     * Hanya dapat diakses oleh pengguna yang sudah memiliki role ADMIN.
+     * @param request Berisi email pengguna yang akan dipromosikan.
+     * @return ResponseEntity yang mengindikasikan sukses atau gagal.
+     */
+    @PostMapping("/admin/promote")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<?> promoteToAdmin(@Valid @RequestBody PromoteAdminRequest request) {
+        try {
+            authService.promoteToAdmin(request.getEmail().trim());
+            return ResponseEntity.ok(Map.of(
+                    "message", "User " + request.getEmail() + " promoted to ADMIN successfully",
+                    "status", "success"
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "message", e.getMessage(),
+                    "status", "error"
+            ));
+        } catch (RuntimeException e) {
+            if (e.getMessage().toLowerCase().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage(), "status", "error"));
+            } else if (e.getMessage().toLowerCase().contains("already an admin")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage(), "status", "error"));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "message", e.getMessage(),
+                    "status", "error"
+            ));
+        } catch (Exception e) {
+            System.err.println("Unexpected error during admin promotion: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "message", "An unexpected error occurred during admin promotion",
                     "status", "error"
             ));
         }
