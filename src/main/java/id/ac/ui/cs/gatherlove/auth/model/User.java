@@ -39,6 +39,7 @@ public class User {
 
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false)
     private String name;
 
     private String phoneNumber;
