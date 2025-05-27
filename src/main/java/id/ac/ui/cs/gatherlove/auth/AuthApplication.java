@@ -32,6 +32,7 @@ public class AuthApplication {
         System.setProperty("APP_JWT_ISSUER", dotenv.get("APP_JWT_ISSUER"));
         System.setProperty("APP_JWT_EXPIRES_IN", dotenv.get("APP_JWT_EXPIRES_IN"));
         System.setProperty("APP_JWT_ALGORITHM", dotenv.get("APP_JWT_ALGORITHM"));
+        System.setProperty("WALLET_SERVICE_BASE_URL", dotenv.get("WALLET_SERVICE_BASE_URL"));
 
         SpringApplication.run(AuthApplication.class, args);
     }
