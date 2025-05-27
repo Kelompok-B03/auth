@@ -15,7 +15,8 @@ import org.springframework.test.context.TestPropertySource;
         "DB_PORT=5432",
         "DB_NAME=testdb",
         "DB_USERNAME=testuser",
-        "DB_PASSWORD=testpass"
+        "DB_PASSWORD=testpass",
+        "WALLET_SERVICE_BASE_URL=http://localhost:8080"
 })
 @ActiveProfiles("test")
 @SpringBootTest
